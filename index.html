@@ -4,167 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pencarian Data Kandidat</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .main-container { max-width: 800px; margin: 30px auto; }
-    .badge-custom { font-size: 0.85rem; padding: 6px 12px; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
   </style>
 </head>
 <body>
-
-  <div class="container main-container">
-    <div class="card shadow-sm border-0 mb-4">
-      <div class="card-body p-4">
-        <h4 class="fw-bold text-primary mb-3">Pencarian Data Kandidat</h4>
-        
-        <div class="row g-3">
-          <!-- KIRI: FITUR SEARCH NAMA -->
-          <div class="col-md-6">
-            <label for="searchInput" class="form-label fw-bold text-secondary">Search Nama:</label>
-            <input class="form-control" list="searchNameList" id="searchInput" placeholder="Ketik nama kandidat..." oninput="handleSearchInput()">
-            <datalist id="searchNameList"></datalist>
-          </div>
-
-          <!-- KANAN: DROPDOWN NO - NAMA - ASAL SEKOLAH -->
-          <div class="col-md-6">
-            <label for="selectDropdown" class="form-label fw-bold text-secondary">Pilih Kandidat (No - Nama - Sekolah):</label>
-            <select class="form-select" id="selectDropdown" onchange="handleDropdownSelect()">
-              <option value="">-- Pilih dari Dropdown --</option>
-            </select>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Indicator Loading -->
-    <div id="loading" class="text-center my-4">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-muted">Memuat data dari Spreadsheet...</p>
-    </div>
-
-    <!-- Detail Card Candidate -->
-    <div id="detailCard" class="card shadow-sm border-0 d-none">
-      <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
-        <div>
-          <span class="badge bg-light text-dark me-2">No. <span id="dNo"></span></span>
-          <h5 id="dNama" class="card-title mb-0 d-inline fw-bold"></h5>
-        </div>
-        <span id="dSekolah" class="badge bg-info text-dark badge-custom"></span>
-      </div>
-      <div class="card-body p-4">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <small class="text-muted d-block">NIK</small>
-            <strong id="dNik"></strong>
-          </div>
-          <div class="col-md-6">
-            <small class="text-muted d-block">Jenis Kelamin / Usia</small>
-            <strong><span id="dJk"></span> (<span id="dUsia"></span> thn)</strong>
-          </div>
-          <div class="col-md-6">
-            <small class="text-muted d-block">Tempat, Tanggal Lahir</small>
-            <strong id="dTtl"></strong>
-          </div>
-          <div class="col-md-6">
-            <small class="text-muted d-block">Jurusan / Tahun Lulus</small>
-            <strong><span id="dJurusan"></span> (<span id="dTahun"></span>)</strong>
-          </div>
-          <div class="col-md-6">
-            <small class="text-muted d-block">Tinggi / Berat Badan</small>
-            <strong><span id="dTb"></span> cm / <span id="dBb"></span> kg</strong>
-          </div>
-          <div class="col-md-6">
-            <small class="text-muted d-block">No. HP / WA</small>
-            <strong id="dHp" class="text-success"></strong>
-          </div>
-          <div class="col-12">
-            <small class="text-muted d-block">Email</small>
-            <strong id="dEmail"></strong>
-          </div>
-          <div class="col-12">
-            <small class="text-muted d-block">Alamat Lengkap</small>
-            <p id="dAlamat" class="mb-0 text-secondary"></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // MASUKKAN URL WEB APP APPS SCRIPT ANDA DI SINI
-    const API_URL = "https://script.google.com/macros/s/AKfycbynOcxbPCn5WBKRUu3ZZfJtF_1uMaiyXMKicNMJ3WBSv3rFyhGgELKUeqHoT_RHiikH/exec";
-
-    let masterData = [];
-
-    window.onload = function() {
-      fetch(API_URL)
-        .then(response => response.json())
-        .then(data => {
-          masterData = data;
-          document.getElementById('loading').classList.add('d-none');
-          
-          let searchDatalist = document.getElementById('searchNameList');
-          let dropdown = document.getElementById('selectDropdown');
-
-          data.forEach((item, index) => {
-            if (item.nama) {
-              // Populate Autocomplete Search
-              let optSearch = document.createElement('option');
-              optSearch.value = item.nama;
-              searchDatalist.appendChild(optSearch);
-
-              // Populate Select Dropdown
-              let optSelect = document.createElement('option');
-              optSelect.value = index;
-              optSelect.textContent = item.dropdownLabel;
-              dropdown.appendChild(optSelect);
-            }
-          });
-        })
-        .catch(err => {
-          console.error("Gagal mengambil data:", err);
-          document.getElementById('loading').innerHTML = '<p class="text-danger">Gagal memuat data. Pastikan URL Apps Script sudah benar dan dipublikasikan untuk semua orang.</p>';
-        });
-    };
-
-    function handleSearchInput() {
-      let val = document.getElementById('searchInput').value.trim().toLowerCase();
-      let foundIndex = masterData.findIndex(item => item.nama.toLowerCase() === val);
-
-      if (foundIndex !== -1) {
-        document.getElementById('selectDropdown').value = foundIndex;
-        renderCard(masterData[foundIndex]);
-      }
-    }
-
-    function handleDropdownSelect() {
-      let index = document.getElementById('selectDropdown').value;
-      if (index !== "") {
-        let selected = masterData[index];
-        document.getElementById('searchInput').value = selected.nama;
-        renderCard(selected);
-      }
-    }
-
-    function renderCard(selected) {
-      document.getElementById('detailCard').classList.remove('d-none');
-      document.getElementById('dNo').innerText = selected.no || '-';
-      document.getElementById('dNama').innerText = selected.nama;
-      document.getElementById('dSekolah').innerText = selected.sekolah || 'Tidak Diketahui';
-      document.getElementById('dNik').innerText = selected.nik || '-';
-      document.getElementById('dJk').innerText = selected.jk || '-';
-      document.getElementById('dUsia').innerText = selected.usia || '-';
-      document.getElementById('dTtl').innerText = selected.ttl || '-';
-      document.getElementById('dJurusan').innerText = selected.jurusan || '-';
-      document.getElementById('dTahun').innerText = selected.tahun || '-';
-      document.getElementById('dTb').innerText = selected.tb || '-';
-      document.getElementById('dBb').innerText = selected.bb || '-';
-      document.getElementById('dHp').innerText = selected.hp || '-';
-      document.getElementById('dEmail').innerText = selected.email || '-';
-      document.getElementById('dAlamat').innerText = selected.alamat || '-';
-    }
-  </script>
+  <!-- GANTI URL di bawah dengan URL Deploy Web App Google Apps Script kamu -->
+  <iframe src="https://script.google.com/macros/s/AKfycbx6rh0Kx3T141RgMCEl1fqqVypUOzOM2mpBwoUU-XfP1tX3LsOC7Ljlk1VsFhxmvCLn/exec"></iframe>
 </body>
 </html>
